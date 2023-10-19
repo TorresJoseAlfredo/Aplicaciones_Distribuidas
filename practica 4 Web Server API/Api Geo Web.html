@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Geografica</title>
+</head>
+<body>
+    <h1>Consulta Geografica</h1>
+    <label for="lugar">Lugar:</label>
+    <input type="text" id="lugarInput" placeholder="Escribe el nombre del lugar">
+    <button onclick="obtener_informacion_ubicacion()">Consultar</button>
+    <div id="resultado"></div>
+
+    <script>
+        function obtener_informacion_ubicacion() {
+            //const apiKey = "e3ddb67d4bcab798bbd1c64866750f01"; // Reemplaza con tu API Key de OpenWeatherMap
+            const GEONAMES_USERNAME ="akricitooo";
+            const lugar = document.getElementById("lugarInput").value;
+            const url = `http://api.geonames.org/searchJSON?name=${lugar}&maxRows=2&username=${GEONAMES_USERNAME}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.geonames) {
+                        const ubicacion = data.geonames[0];
+                        const nombre = ubicacion.name;
+                        //const nombre = data.geonames[0].name;
+                        const pais = ubicacion.countryName;
+                        const poblacion = ubicacion.population;
+                        const resultado = `Nombre: ${nombre}<br>Pais: ${pais}<br>Poblacion: ${poblacion}`;
+                        document.getElementById("resultado").innerHTML = resultado;
+                    } else {
+                        document.getElementById("resultado").innerHTML = "Datos geograficos no disponibles.";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("resultado").innerHTML = "Error: " + error.message;
+                });
+        }
+    </script>
+</body>
+</html>

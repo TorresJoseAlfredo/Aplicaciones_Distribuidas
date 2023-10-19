@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Geográfica</title>
+</head>
+<body>
+    <h1>Consulta Geográfica</h1>
+    <label for="lugar">Lugar:</label>
+    <input type="text" id="lugarInput" placeholder="Escribe el nombre del lugar">
+    <button onclick="obtenerInformacion()">Consultar</button>
+    <div id="resultado"></div>
+
+    <script>
+        function obtenerInformacion() {
+            const GEONAMES_USERNAME = "akricitooo";
+            const lugar = document.getElementById("lugarInput").value;
+
+            const geoUrl = `http://api.geonames.org/searchJSON?name=${lugar}&maxRows=1&username=${GEONAMES_USERNAME}`;
+            const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?q=${lugar}&appid=e3ddb67d4bcab798bbd1c64866750f01`;
+
+            fetch(geoUrl)
+                .then(response => response.json())
+                .then(geoData => {
+                    if (geoData.geonames) {
+                        const ubicacion = geoData.geonames[0];
+                        const nombre = ubicacion.name;
+                        const pais = ubicacion.countryName;
+                        const poblacion = ubicacion.population;
+                        const resultadoGeografico = `Nombre: ${nombre}<br>País: ${pais}<br>Población: ${poblacion}`;
+
+                        fetch(weatherUrl)
+                            .then(response => response.json())
+                            .then(weatherData => {
+                                if ("main" in weatherData && "weather" in weatherData) {
+                                    const temperatura = (weatherData.main.temp - 273.15).toFixed(2);
+                                    const condicionesClimaticas = weatherData.weather[0].description;
+                                    const resultadoClima = `Temperatura: ${temperatura}°C<br>Condiciones Climáticas: ${condicionesClimaticas}`;
+
+                                    document.getElementById("resultado").innerHTML = resultadoGeografico + "<br>" + resultadoClima;
+                                } else {
+                                    document.getElementById("resultado").innerHTML = resultadoGeografico + "<br>Datos meteorológicos no disponibles.";
+                                }
+                            })
+                            .catch(error => {
+                                document.getElementById("resultado").innerHTML = resultadoGeografico + "<br>Error en la solicitud meteorológica: " + error.message;
+                            });
+                    } else {
+                        document.getElementById("resultado").innerHTML = "Datos geográficos no disponibles.";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("resultado").innerHTML = "Error en la solicitud geográfica: " + error.message;
+                });
+        }
+    </script>
+</body>
+</html>
